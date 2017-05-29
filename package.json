@@ -1,0 +1,19 @@
+{
+  "name": "csda-admin-proxy",
+  "version": "0.0.1",
+  "private": true,
+  "description": "A simple http proxy",
+  "main": "app/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@gitlab.coddera.com:10022/root/csda-admin-proxy.git"
+  },
+  "keywords": [
+    "csda",
+    "proxy"
+  ],
+  "author": "Martins, Thiago <tmartins@coddera.com>"
+}
