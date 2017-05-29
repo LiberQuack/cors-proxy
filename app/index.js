@@ -10,14 +10,23 @@ if (!target) {
     console.log(`Resquests are going to be redirected to: [${target}/*]`);
 }
 
+proxy.use(require('body-parser').text(_ => true));
+
 proxy.all('*', (proxyReq, proxyRes) => {
     console.log(`Redirecting from: host=${proxyReq.hostname} method=${proxyReq.method} path=${proxyReq.originalUrl} to ${target}${proxyReq.originalUrl}`);
 
-    fetch(`http://${target}${proxyReq.originalUrl}`)
+    let fetchOpts = {
+        method: proxyReq.method,
+        headers: proxyReq.headers,
+        redirect: 'manual'
+    };
+
+    fetch(`http://${target}${proxyReq.originalUrl}`, fetchOpts)
         .then(res => Promise.all([res, res.text()]))
         .then(results => {
-            let res = results[0], resBody = results[1];
-            proxy.set('Content-Type', res.headers.get('Content-Type'));
+            let res = results[0],
+                resBody = results[1];
+            res.headers.forEach((value, key) => proxyRes.set(key, value));
             proxyRes.status(res.status).send(resBody);
         })
         .catch(err => {
