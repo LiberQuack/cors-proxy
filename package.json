@@ -15,5 +15,13 @@
     "csda",
     "proxy"
   ],
-  "author": "Martins, Thiago <tmartins@coddera.com>"
+  "author": "Martins, Thiago <tmartins@coddera.com>",
+  "dependencies": {
+    "express": "^4.15.3",
+    "node-fetch": "^1.7.0"
+  },
+  "devDependencies": {
+    "chai": "^4.0.0",
+    "mocha": "^3.4.2"
+  }
 }
