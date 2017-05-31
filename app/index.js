@@ -1,36 +1,51 @@
+'use strict';
+
 let proxy = require('express')(),
+    targetParser = require('./target-parser'),
     fetch = require('node-fetch');
 
-let target = process.argv[2];
+let targetHost = targetParser.parseArguments();
 
-if (!target) {
-    console.error("Host target argument required... node ./app/index.js <host>[:port]");
-    process.exit(1);
-} else {
-    console.log(`Resquests are going to be redirected to: [${target}/*]`);
-}
+proxy.use(require('body-parser').raw({type: _ => true}));
 
-proxy.use(require('body-parser').text(_ => true));
+proxy.all('*', (clientReq, finalResponse) => {
+    console.log(`Redirecting from: host=${clientReq.hostname} method=${clientReq.method} path=${clientReq.originalUrl} to ${targetHost}${clientReq.originalUrl}`);
 
-proxy.all('*', (proxyReq, proxyRes) => {
-    console.log(`Redirecting from: host=${proxyReq.hostname} method=${proxyReq.method} path=${proxyReq.originalUrl} to ${target}${proxyReq.originalUrl}`);
-
-    let fetchOpts = {
-        method: proxyReq.method,
-        headers: proxyReq.headers,
-        redirect: 'manual'
+    let proxiedReq = {
+        method: clientReq.method,
+        headers: clientReq.headers,
+        redirect: 'manual',
+        body: clientReq.body
     };
 
-    fetch(`http://${target}${proxyReq.originalUrl}`, fetchOpts)
-        .then(res => Promise.all([res, res.text()]))
+    fetch(`http://${targetHost}${clientReq.originalUrl}`, proxiedReq)
+        .then(res => {
+            let body, contentType = res.headers.get('content-type').toLowerCase();
+
+            //TODO: Extract it from here
+            switch (true) {
+                case (contentType.indexOf('text') > -1):
+                case (contentType.indexOf('application/javascript') > -1):
+                    body = res.text();
+                    res.headers.delete('content-encoding');
+                    break;
+                default:
+                    body = res.buffer();
+            }
+
+            return Promise.all([res, body]);
+        })
         .then(results => {
-            let res = results[0],
-                resBody = results[1];
-            res.headers.forEach((value, key) => proxyRes.set(key, value));
-            proxyRes.status(res.status).send(resBody);
+            let res = results[0], resBody = results[1];
+            res.headers.forEach((value, key) => finalResponse.set(key, value));
+            finalResponse.set("Access-Control-Allow-Origin", "*");
+            finalResponse.set("Access-Control-Allow-Methods", "*");
+            finalResponse.set("Access-Control-Allow-Headers", "*");
+
+            finalResponse.status(res.status).send(resBody);
         })
         .catch(err => {
-            proxyRes.status(503).send({msg: `Host ${target} is unavailable`, err});
+            finalResponse.status(503).send({msg: `Host ${targetHost} is unavailable`, err});
         });
 });
 
