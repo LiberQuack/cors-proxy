@@ -5,7 +5,7 @@ module.exports = {
         let target = cmdArguments[2];
 
         if (!target) {
-            throw new Error("Host target argument required... node ./app/index.js <host>[:port]");
+            throw new Error("Host target argument required... node ./app/proxy.js <host>[:port]");
         } else {
             console.log(`Resquests are going to be redirected to: [${target}/*]`);
             return target;
