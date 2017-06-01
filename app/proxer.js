@@ -1,14 +1,20 @@
 'use strict';
 
-let express = require('express'),
+let connection, ADODB,
+    express = require('express'),
     fetch = require('node-fetch'),
     moment = require('moment'),
-    ADODB = require('node-adodb'),
-    bodyParser = require('body-parser').raw({type: _ => true}),
+
+    bodyParser = require('body-parser').raw({type: _ => true});
+
+try {
+    ADODB = require('node-adodb');
     connection = ADODB.open('Provider=Microsoft.Jet.OLEDB.4.0;Data Source=./csdaFrontendLog.mdb;');
+} catch (err) {
+    console.warn("Could not connect to ./csdaFrontendLog.mdb;");
+}
 
-
-function startNewProxy(target, port = 8080) {
+function startNewProxy(target, proxyPort) {
     let proxy = _instantiateProxy();
 
     proxy.all('*', (clientReq, finalResponse) => {
@@ -22,7 +28,10 @@ function startNewProxy(target, port = 8080) {
             serverStart: moment()
         };
 
-        fetch(`http://${target}${clientReq.originalUrl}`, _createRequest(clientReq))
+        let protocol = target.indexOf("://") > -1 ? "" : "http";
+        let targetUrl = `${protocol}${target}${clientReq.originalUrl}`;
+
+        fetch(targetUrl, _createRequest(clientReq))
             .then(_responseToText)
             .then(results => _addPerfs(results, clientReq))
             .then(results => {
@@ -43,7 +52,8 @@ function startNewProxy(target, port = 8080) {
             })
     });
 
-    proxy.listen(port);
+    proxy.listen(proxyPort);
+    console.log(`Resquests are going to be redirected to: [${target}/*]`);
     return proxy;
 }
 

@@ -1,8 +1,8 @@
 "use strict";
 
 let proxy = require('./proxer'),
-    targetParser = require('./target-parser');
+    targetParser = require('./cmd-arguments-parser');
 
-let targetHost = targetParser.parseArguments();
+let args = targetParser.parseArguments();
 
-proxy.startNewProxy(targetHost, 8080);
+proxy.startNewProxy(args.targetHost, args.proxyPort);
