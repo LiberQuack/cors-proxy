@@ -58,15 +58,12 @@ function startNewProxy(target, proxyPort) {
 function _saveLogs(perfs) {
     if (!connection) return console.warn("No connection to mdb, can't save logs");
 
-    let statement = `
-    INSERT INTO proxyLog (clientMethod, clientUrl, clientHost, clientStart, serverStart, serverEnd, clientDiff, serverResponse, codeResponse)
-    VALUES ('${perfs.clientMethod}', '${perfs.clientUrl}', '${perfs.clientHost}', #${perfs.clientStart.format('YYYY-MM-DD HH:mm:ss')}#,
-        #${perfs.serverStart.format('YYYY-MM-DD HH:mm:ss')}#, #${perfs.serverEnd.format('YYYY-MM-DD HH:mm:ss')}#,
-        ${perfs.clientDiff}, '${(perfs.serverResponse || "").substring(0, 30).replace(/'/g, '')}', ${perfs.codeResponse})
-    `;
+    let statement = `  INSERT INTO proxyLog (clientMethod, clientUrl, clientHost, clientStart, serverStart, serverEnd, clientDiff, serverResponse, codeResponse)
+                       VALUES ('${perfs.clientMethod}', '${perfs.clientUrl}', '${perfs.clientHost}', #${perfs.clientStart.format('YYYY-MM-DD HH:mm:ss')}#,
+                       #${perfs.serverStart.format('YYYY-MM-DD HH:mm:ss')}#, #${perfs.serverEnd.format('YYYY-MM-DD HH:mm:ss')}#,
+                       ${perfs.clientDiff}, '${(perfs.serverResponse || "").substring(0, 30).replace(/'/g, '')}', ${perfs.codeResponse})`;
 
-    connection.execute(statement)
-        .on('fail', err => console.warn("Could not save logs on csdaFrontendLog.mdb", err));
+    connection.execute(statement).on('fail', err => console.warn("Could not save logs on csdaFrontendLog.mdb", err));
 }
 
 function _responseToText(res) {
