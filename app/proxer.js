@@ -101,14 +101,13 @@ function _createRequest(clientReq) {
     let proxiedReq = {
         method: clientReq.method,
         headers: clientReq.headers,
-        redirect: 'auto',
+        redirect: 'manual',
     };
 
     if (clientReq.body instanceof Uint8Array) {
         proxiedReq.body = clientReq.body.toString();
     }
 
-    console.log(JSON.stringify(proxiedReq, null, 2));
     return proxiedReq;
 }
 
