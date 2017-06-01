@@ -12,4 +12,4 @@ test:
     - echo STARTING CLI TEST
     - npm start httpbin.org 1680 &
     - sleep 5
-    - wget -qO- http://localhost:1680/get?potato | grep potato
+    - wget -qO- http://localhost:1680/get?potato | grep potato && echo CLI TEST PASSED
