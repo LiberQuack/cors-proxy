@@ -3,6 +3,8 @@ cache:
     - node_modules
 
 test:
+  tags:
+    - docker
   image: node:6
   script:
     - npm install
