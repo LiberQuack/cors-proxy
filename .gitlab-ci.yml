@@ -7,6 +7,6 @@ test:
     - docker
   image: node:8
   script:
+    - sleep 600000
     - npm install
     - npm test
-    - sleep 600000
