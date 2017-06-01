@@ -4,7 +4,6 @@ let connection, ADODB,
     express = require('express'),
     fetch = require('node-fetch'),
     moment = require('moment'),
-
     bodyParser = require('body-parser').raw({type: _ => true});
 
 try {
@@ -29,6 +28,7 @@ function startNewProxy(target, proxyPort) {
         let protocol = target.indexOf("://") > -1 ? "" : "http://";
         let targetUrl = `${protocol}${target}${clientReq.originalUrl}`;
         console.log(`Redirecting from: host=${clientReq.hostname} method=${clientReq.method} to ${targetUrl}`);
+
         fetch(targetUrl, _createRequest(clientReq))
             .then(_responseToText)
             .then(results => _addPerfs(results, clientReq))
@@ -50,9 +50,8 @@ function startNewProxy(target, proxyPort) {
             })
     });
 
-    proxy.listen(proxyPort);
     console.log(`Resquests are going to be redirected to: [${target}/*]`);
-    return proxy;
+    return proxy.listen(proxyPort);
 }
 
 function _saveLogs(perfs) {
@@ -108,6 +107,7 @@ function _createRequest(clientReq) {
         proxiedReq.body = clientReq.body.toString();
     }
 
+    delete proxiedReq.headers.host;
     return proxiedReq;
 }
 
