@@ -101,7 +101,7 @@ function _createRequest(clientReq) {
     let proxiedReq = {
         method: clientReq.method,
         headers: clientReq.headers,
-        redirect: 'manual',
+        redirect: 'auto',
     };
 
     if (clientReq.body instanceof Uint8Array) {
