@@ -26,7 +26,7 @@ function startNewProxy(target, proxyPort) {
             serverStart: moment()
         };
 
-        let protocol = target.indexOf("://") > -1 ? "" : "http";
+        let protocol = target.indexOf("://") > -1 ? "" : "http://";
         let targetUrl = `${protocol}${target}${clientReq.originalUrl}`;
         console.log(`Redirecting from: host=${clientReq.hostname} method=${clientReq.method} to ${targetUrl}`);
         fetch(targetUrl, _createRequest(clientReq))
