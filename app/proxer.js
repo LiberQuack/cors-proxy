@@ -18,6 +18,8 @@ function startNewProxy(target, proxyPort) {
     let proxy = _instantiateProxy();
 
     proxy.all('*', (clientReq, finalResponse) => {
+        console.log("CLIENT HEADERS:", JSON.stringify(clientReq, null, 2));
+
         clientReq.perfs = {
             clientMethod: clientReq.method,
             clientUrl: clientReq.originalUrl,
