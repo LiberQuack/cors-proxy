@@ -6,7 +6,7 @@ describe("Proxer", _ => {
 
 
     it("Should proxy requests with body successfully", done => {
-        let proxy = proxer.startNewProxy("https://httpbin.org", 9091);
+        let proxy = proxer.startNewProxy("https://httpbin.org:443", 9091);
         fetch('http://localhost:9091/get?potato')
             .then(res => res.json())
             .then(json => {
