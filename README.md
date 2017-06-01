@@ -1,9 +1,9 @@
 # CSDA-ADMIN-PROXY
 
 Simple node http proxy that saves records about network latency, requests and
-responses in a portable DB
+responses are saved in a portable access DB
 
 # Commands
 
-- `npm start` starts proxy
+- `npm start <target[:port]> [proxyPort]` starts proxy
 - `npm test` run unit tests
