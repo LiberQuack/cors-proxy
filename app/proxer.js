@@ -56,7 +56,7 @@ function startNewProxy(target, proxyPort) {
 }
 
 function _saveLogs(perfs) {
-    if (!connection) console.warn("No connection to mdb, can't save logs");
+    if (!connection) return console.warn("No connection to mdb, can't save logs");
 
     let statement = `
     INSERT INTO proxyLog (clientMethod, clientUrl, clientHost, clientStart, serverStart, serverEnd, clientDiff, serverResponse, codeResponse)
