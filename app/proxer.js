@@ -3,7 +3,10 @@
 let express = require('express'),
     fetch = require('node-fetch'),
     moment = require('moment'),
-    bodyParser = require('body-parser').raw({type: _ => true});
+    ADODB = require('node-adodb'),
+    bodyParser = require('body-parser').raw({type: _ => true}),
+    connection = ADODB.open('Provider=Microsoft.Jet.OLEDB.4.0;Data Source=./csdaFrontendLog.mdb;');
+
 
 function startNewProxy(target, port = 8080) {
     let proxy = _instantiateProxy();
@@ -21,12 +24,9 @@ function startNewProxy(target, port = 8080) {
 
         fetch(`http://${target}${clientReq.originalUrl}`, _createRequest(clientReq))
             .then(_responseToText)
+            .then(results => _addPerfs(results, clientReq))
             .then(results => {
-                let now = moment(), res = results[0], resBody = results[1];
-                clientReq.perfs.serverEnd = now;
-                clientReq.perfs.clientDiff = now - clientReq.perfs.clientStart;
-                clientReq.perfs.serverResponse = typeof resBody === "string" ? resBody : null;
-                clientReq.perfs.codeResponse = res.status;
+                _saveLogs(clientReq.perfs);
                 return results;
             })
             .then(results => {
@@ -40,11 +40,23 @@ function startNewProxy(target, port = 8080) {
             .catch(err => {
                 console.error(err);
                 finalResponse.status(503).send({msg: `Host ${target} is unavailable`, err});
-            });
+            })
     });
 
     proxy.listen(port);
     return proxy;
+}
+
+function _saveLogs(perfs) {
+    let statement = `
+    INSERT INTO proxyLog (clientMethod, clientUrl, clientHost, clientStart, serverStart, serverEnd, clientDiff, serverResponse, codeResponse)
+    VALUES ('${perfs.clientMethod}', '${perfs.clientUrl}', '${perfs.clientHost}', #${perfs.clientStart.format('YYYY-MM-DD HH:mm:ss')}#,
+        #${perfs.serverStart.format('YYYY-MM-DD HH:mm:ss')}#, #${perfs.serverEnd.format('YYYY-MM-DD HH:mm:ss')}#,
+        ${perfs.clientDiff}, '${(perfs.serverResponse || "").substring(0, 30).replace(/'/g, '')}', ${perfs.codeResponse})
+    `;
+
+    connection.execute(statement)
+        .on('fail', err => console.warn("Could not save logs on csdaFrontendLog.mdb", err));
 }
 
 function _responseToText(res) {
@@ -61,6 +73,15 @@ function _responseToText(res) {
     }
 
     return Promise.all([res, body]);
+}
+
+function _addPerfs(results, clientReq) {
+    let now = moment(), res = results[0], resBody = results[1];
+    clientReq.perfs.serverEnd = now;
+    clientReq.perfs.clientDiff = now - clientReq.perfs.clientStart;
+    clientReq.perfs.serverResponse = typeof resBody === "string" ? resBody : null;
+    clientReq.perfs.codeResponse = res.status;
+    return results;
 }
 
 function _instantiateProxy() {
