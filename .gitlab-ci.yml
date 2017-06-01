@@ -3,6 +3,7 @@ cache:
     - node_modules
 
 test:
+  image: node:6
   script:
     - npm install
     - npm test
