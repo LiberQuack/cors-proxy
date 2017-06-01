@@ -18,8 +18,6 @@ function startNewProxy(target, proxyPort) {
     let proxy = _instantiateProxy();
 
     proxy.all('*', (clientReq, finalResponse) => {
-        console.log(`Redirecting from: host=${clientReq.hostname} method=${clientReq.method} path=${clientReq.originalUrl} to ${target}${clientReq.originalUrl}`);
-
         clientReq.perfs = {
             clientMethod: clientReq.method,
             clientUrl: clientReq.originalUrl,
@@ -30,7 +28,7 @@ function startNewProxy(target, proxyPort) {
 
         let protocol = target.indexOf("://") > -1 ? "" : "http";
         let targetUrl = `${protocol}${target}${clientReq.originalUrl}`;
-
+        console.log(`Redirecting from: host=${clientReq.hostname} method=${clientReq.method} to ${targetUrl}`);
         fetch(targetUrl, _createRequest(clientReq))
             .then(_responseToText)
             .then(results => _addPerfs(results, clientReq))
