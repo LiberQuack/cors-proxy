@@ -5,7 +5,7 @@ cache:
 test:
   tags:
     - docker
-  image: node:6
+  image: node:8
   script:
     - npm install
     - npm test
