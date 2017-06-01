@@ -18,8 +18,6 @@ function startNewProxy(target, proxyPort) {
     let proxy = _instantiateProxy();
 
     proxy.all('*', (clientReq, finalResponse) => {
-        console.log("CLIENT HEADERS:", JSON.stringify(clientReq.headers, null, 2));
-
         clientReq.perfs = {
             clientMethod: clientReq.method,
             clientUrl: clientReq.originalUrl,
@@ -110,6 +108,7 @@ function _createRequest(clientReq) {
         proxiedReq.body = clientReq.body.toString();
     }
 
+    console.log(JSON.stringify(proxiedReq, null, 2));
     return proxiedReq;
 }
 
