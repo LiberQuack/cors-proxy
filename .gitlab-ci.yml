@@ -9,3 +9,12 @@ test:
   script:
     - npm install
     - npm test
+
+cli-test:
+  tags:
+    - docker
+  image: node:8
+  script:
+    - npm start httpbin.org 1680 &
+    - sleep 5
+    - wget http://localhost:1680/get?potato | grep potato
