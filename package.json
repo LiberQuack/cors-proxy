@@ -6,7 +6,8 @@
   "main": "app/index.js",
   "scripts": {
     "start": "node ./app/index.js",
-    "test": "mocha --timeout 10000 test/*"
+    "test": "mocha --timeout 10000 test/*",
+    "install-windows-service": "node app/windows-service-installer.js"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,9 @@
     "isomorphic-fetch": "^2.2.1",
     "moment": "^2.18.1",
     "node-adodb": "^3.0.3"
+  },
+  "optionalDependencies": {
+    "node-windows": "^0.1.11"
   },
   "devDependencies": {
     "chai": "^4.0.0",

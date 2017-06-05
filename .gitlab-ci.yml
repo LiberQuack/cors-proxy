@@ -9,7 +9,16 @@ test:
   script:
     - npm install
     - npm test
+
     - echo STARTING CLI TEST
     - npm start httpbin.org 1680 &
     - sleep 5
     - wget -qO- http://localhost:1680/get?potato | grep potato && echo CLI TEST PASSED
+    - kill %1
+
+    - echo STARTING ENV VARS TEST
+    - export PROXY_TARGET=httpbin.org
+    - export PROXY_PORT=1681
+    - npm start &
+    - sleep 5
+    - wget -qO- http://localhost:1681/get?potato | grep potato && echo CLI TEST PASSED
