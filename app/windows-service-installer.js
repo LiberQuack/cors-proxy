@@ -29,12 +29,13 @@ function _install(name, target, port) {
 
     let svc = new Service({
         name: name,
-        description: 'A simple proxy for recording logs about requests and responses',
+        description: `A simple proxy for recording logs about requests and responses ` +
+                        `proxyTarget(${args.targetHost}) proxyPort(${args.proxyPort})`,
         script: `${__dirname}/index.js`,
         env: [{
             name: "PROXY_TARGET",
             value: args.targetHost
-        },{
+        }, {
             name: "PROXY_PORT",
             value: args.proxyPort
         }]
