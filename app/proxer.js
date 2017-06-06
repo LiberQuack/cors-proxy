@@ -1,6 +1,7 @@
 'use strict';
 
 let connection, ADODB,
+    cors = require('cors'),
     express = require('express'),
     url = require('url'),
     fetch = require('node-fetch'),
@@ -22,7 +23,7 @@ function startNewProxy(target, proxyPort) {
             clientMethod: clientReq.method,
             clientUrl: clientReq.originalUrl,
             clientHost: `${clientReq.hostname} - ${clientReq.ip}`,
-            clientStart: clientReq.headers['date-started'] ? moment(clientReq.headers['date-started']) : moment(),
+            clientStart: clientReq.headers['date-started'] ? moment(clientReq.headers['date-started'].replace(/"/g, '')) : moment(),
             serverStart: moment()
         };
 
@@ -40,9 +41,6 @@ function startNewProxy(target, proxyPort) {
             .then(results => {
                 let res = results[0], resBody = results[1];
                 res.headers.forEach((value, key) => finalResponse.set(key, value));
-                finalResponse.set("Access-Control-Allow-Origin", "*");
-                finalResponse.set("Access-Control-Allow-Methods", clientReq.method);
-                finalResponse.set("Access-Control-Allow-Headers", Object.keys(clientReq.headers).join(','));
                 finalResponse.status(res.status).send(resBody);
             })
             .catch(err => {
@@ -94,6 +92,7 @@ function _addPerfs(results, clientReq) {
 function _instantiateProxy() {
     let proxy = express();
     proxy.use(bodyParser);
+    proxy.use(cors());
     return proxy;
 }
 

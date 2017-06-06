@@ -8,7 +8,8 @@ describe("Proxer", _ => {
     it("Should proxy GET requests with successfully", done => {
         let proxy = proxer.startNewProxy("httpbin.org", 9091);
 
-        fetch('http://localhost:9091/get?potato').then(res => res.json())
+        fetch('http://localhost:9091/get?potato')
+            .then(res => res.json())
             .then(json => {
                 let keys = Object.keys(json.args);
                 expect(keys).to.include('potato');
@@ -62,5 +63,22 @@ describe("Proxer", _ => {
                 done();
             });
     });
+
+    it("Should proxy successfully with header date-started", done => {
+        let proxy = proxer.startNewProxy("httpbin.org", 8080);
+
+        let body = JSON.stringify({potatoes: 5});
+        let opts = {method: 'POST', body, headers: {"date-started": '"2017-06-05T22:44:10.863Z"'}};
+        fetch('http://localhost:8080/post', opts).then(res => res.json())
+            .then(json => {
+                expect(json.data).to.be.equal(body);
+                proxy.close();
+                done();
+            });
+    });
+
+    //TODO: Test cors
+
+    //TODO: Test log creation
 
 });
