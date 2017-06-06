@@ -1,7 +1,8 @@
 let expect = require('chai').expect,
     fetch = require('node-fetch'),
     imageType = require('image-type'),
-    proxer = require('../app/proxer');
+    proxer = require('../app/proxer'),
+    proxyLogger = require('./proxer-test');
 
 describe("Proxer", _ => {
 

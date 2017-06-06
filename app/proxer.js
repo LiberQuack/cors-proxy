@@ -1,19 +1,13 @@
 'use strict';
 
-let connection, ADODB,
-    cors = require('cors'),
+let cors = require('cors'),
+    fs = require('fs'),
     express = require('express'),
     url = require('url'),
     fetch = require('node-fetch'),
     moment = require('moment'),
+    proxyLogger = require('./proxy-logger'),
     bodyParser = require('body-parser').raw({type: _ => true});
-
-try {
-    ADODB = require('node-adodb');
-    connection = ADODB.open('Provider=Microsoft.Jet.OLEDB.4.0;Data Source=./csdaFrontendLog.mdb;');
-} catch (err) {
-    console.warn("Could not connect to ./csdaFrontendLog.mdb;");
-}
 
 function startNewProxy(target, proxyPort) {
     let proxy = _instantiateProxy();
@@ -35,7 +29,7 @@ function startNewProxy(target, proxyPort) {
             .then(_responseToText)
             .then(results => _addPerfs(results, clientReq))
             .then(results => {
-                _saveLogs(clientReq.perfs);
+                proxyLogger.write(clientReq.perfs);
                 return results;
             })
             .then(results => {
@@ -51,17 +45,6 @@ function startNewProxy(target, proxyPort) {
 
     console.log(`Resquests are going to be redirected to: [${target}/*]`);
     return proxy.listen(proxyPort);
-}
-
-function _saveLogs(perfs) {
-    if (!connection) return console.warn("No connection to mdb, can't save logs");
-
-    let statement = `  INSERT INTO proxyLog (clientMethod, clientUrl, clientHost, clientStart, serverStart, serverEnd, clientDiff, serverResponse, codeResponse)
-                       VALUES ('${perfs.clientMethod}', '${perfs.clientUrl}', '${perfs.clientHost}', #${perfs.clientStart.format('YYYY-MM-DD HH:mm:ss')}#,
-                       #${perfs.serverStart.format('YYYY-MM-DD HH:mm:ss')}#, #${perfs.serverEnd.format('YYYY-MM-DD HH:mm:ss')}#,
-                       ${perfs.clientDiff}, '${(perfs.serverResponse || "").substring(0, 30).replace(/'/g, '')}', ${perfs.codeResponse})`;
-
-    connection.execute(statement).on('fail', err => console.warn("Could not save logs on csdaFrontendLog.mdb", err));
 }
 
 function _responseToText(res) {
