@@ -1,6 +1,6 @@
 "use strict";
 
-let db = require('lowdb')('../proxy-records.db');
+let db = require('lowdb')('proxy-records.db.json');
 
 db.defaults({data: []}).write();
 
