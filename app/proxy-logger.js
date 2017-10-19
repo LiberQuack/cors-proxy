@@ -1,17 +1,23 @@
 "use strict";
 
-let db = require('lowdb')('proxy-records.db.json');
+let fs = require('fs');
 
-db.defaults({data: []}).write();
+let logExists = fs.existsSync('proxy.log');
 
 module.exports = {
 
-    write: function(perfs) {
-        try {
-            db.get('data').push(perfs).write();
-        } catch (err) {
-            console.error('Could not write logs', err);
+    write: function (perfs) {
+        let keys = Object.keys(perfs);
+        let log = keys.map(key => `${perfs[key]}`).join(";") + ";\r\n";
+
+        if (!logExists) {
+            fs.writeFileSync('proxy.log', keys.join(";") + ";\r\n");
+            logExists = true;
         }
+
+        fs.appendFile('proxy.log', log, err => {
+            if (err) console.error("Could not write logs", err);
+        })
     }
 
 };

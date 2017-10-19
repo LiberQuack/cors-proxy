@@ -67,7 +67,7 @@ function _addPerfs(results, clientReq) {
     let now = moment(), res = results[0], resBody = results[1];
     clientReq.perfs.serverEnd = now;
     clientReq.perfs.clientDiff = now - clientReq.perfs.clientStart;
-    clientReq.perfs.serverResponse = typeof resBody === "string" ? resBody : null;
+    // clientReq.perfs.serverResponse = typeof resBody === "string" ? resBody : null;
     clientReq.perfs.codeResponse = res.status;
     return results;
 }
